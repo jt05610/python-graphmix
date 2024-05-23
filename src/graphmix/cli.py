@@ -5,8 +5,6 @@ Module that contains the command line app.
 
 import sys
 
-from .core import compute
-
 
 def run(argv=tuple(sys.argv)):
     """
@@ -18,5 +16,5 @@ def run(argv=tuple(sys.argv)):
 
     Does stuff.
     """
-    print(compute(argv))
+    print(argv)
     sys.exit(0)
