@@ -52,5 +52,5 @@ forced-separate = ["conftest"]
 force-single-line = true
 
 [tool.black]
-line-length = 140
-target-version = ["py38"]
+line-length = 79
+target-version = ["py312"]
