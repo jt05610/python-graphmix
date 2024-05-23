@@ -1,0 +1,61 @@
+# This file exists so you can easily regenerate your project.
+#
+# `cookiepatcher` is a convenient shim around `cookiecutter`
+# for regenerating projects (it will generate a .cookiecutterrc
+# automatically for any template). To use it:
+#
+#    pip install cookiepatcher
+#    cookiepatcher gh:ionelmc/cookiecutter-pylibrary python-graphmix
+#
+# See:
+#    https://pypi.org/project/cookiepatcher
+#
+# Alternatively, you can run:
+#
+#    cookiecutter --overwrite-if-exists --config-file=python-graphmix/.cookiecutterrc gh:ionelmc/cookiecutter-pylibrary
+
+default_context:
+    c_extension_optional: "no"
+    c_extension_support: "no"
+    codacy: "no"
+    codacy_projectid: "[Get ID from https://app.codacy.com/gh/jt05610/python-graphmix/settings]"
+    codeclimate: "no"
+    codecov: "yes"
+    command_line_interface: "plain"
+    command_line_interface_bin_name: "graphmix"
+    coveralls: "no"
+    distribution_name: "graphmix"
+    email: "jonrtaylor12@gmail.com"
+    formatter_quote_style: "double"
+    full_name: "Jonathan Ross Taylor"
+    function_name: "compute"
+    github_actions: "yes"
+    github_actions_osx: "yes"
+    github_actions_windows: "yes"
+    license: "MIT license"
+    module_name: "core"
+    package_name: "graphmix"
+    pre_commit: "yes"
+    project_name: "GraphMix"
+    project_short_description: "Intelligent experiment planning and optimization powered by graph algorithms."
+    pypi_badge: "yes"
+    pypi_disable_upload: "no"
+    release_date: "today"
+    repo_hosting: "github.com"
+    repo_hosting_domain: "github.com"
+    repo_main_branch: "main"
+    repo_name: "python-graphmix"
+    repo_username: "jt05610"
+    scrutinizer: "no"
+    setup_py_uses_setuptools_scm: "no"
+    sphinx_docs: "yes"
+    sphinx_docs_hosting: "https://python-graphmix.readthedocs.io/"
+    sphinx_doctest: "no"
+    sphinx_theme: "furo"
+    test_matrix_separate_coverage: "no"
+    tests_inside_package: "no"
+    version: "0.0.0"
+    version_manager: "bump2version"
+    website: "https://blog.ionelmc.ro"
+    year_from: "2024"
+    year_to: "2024"
