@@ -16,5 +16,4 @@ def test_chemical_sqlmodel_works_with_quantity():
         formula="H2O",
         molar_mass=18.01528,
     )
-    print(water)
     assert water.molar_mass == Q_("18.01528 g/mol")

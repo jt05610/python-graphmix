@@ -1,5 +1,3 @@
-from typing import Type
-
 import pytest
 from sqlmodel import Session
 from sqlmodel import SQLModel
@@ -10,7 +8,7 @@ from sqlmodel import create_engine
 def sqlite_session_factory():
     engine = create_engine("sqlite://", echo=True)
 
-    def _mock_session_factory(model: Type[SQLModel]):
+    def _mock_session_factory():
         SQLModel.metadata.create_all(engine)
         return Session(engine)
 
