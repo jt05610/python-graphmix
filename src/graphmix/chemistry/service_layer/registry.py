@@ -23,11 +23,14 @@ class ChemicalRegistry:
         database, query PubChem for the chemical information.
         """
         with self.uow:
-            chemical = self.uow.repo.get(name)
+            chemical = self.uow.repo.get_by("name", name)
             if chemical is not None:
                 return chemical
             chemical = self.pubchem.lookup(name)
+            if chemical is None:
+                raise ValueError(f"Chemical {name} not found")
             self.uow.repo.add(chemical)
+            self.uow.session.expunge(chemical)
             self.uow.commit()
             return chemical
 
@@ -36,7 +39,10 @@ class ChemicalRegistry:
         Add a chemical to the local database.
         """
         with self.uow:
-            if self.uow.repo.get(chemical.name) is not None:
+            if self.uow.repo.get_by("name", chemical.name) is not None:
                 raise ValueError(f"Chemical {chemical.name} already exists")
             self.uow.repo.add(chemical)
             self.uow.commit()
+
+    def chem(self, name: str) -> Chemical:
+        return self.get_chemical(name)
