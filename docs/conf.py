@@ -26,7 +26,7 @@ extlinks = {
 
 html_theme = "furo"
 html_theme_options = {
-    "githuburl": "https://github.com/jt05610/python-graphmix/",
+    "source_repository": "https://github.com/jt05610/python-graphmix/",
 }
 
 html_use_smartypants = True
@@ -37,3 +37,5 @@ html_short_title = f"{project}-{version}"
 napoleon_use_ivar = True
 napoleon_use_rtype = False
 napoleon_use_param = False
+
+linkcheck_report_timeouts_as_broken = False

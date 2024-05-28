@@ -4,6 +4,7 @@ code can be found at https://github.com/pallets/click."""
 
 import os
 import sys
+from enum import Enum
 from pathlib import Path
 
 CYGWIN = sys.platform.startswith("cygwin")
@@ -64,3 +65,13 @@ def get_app_dir(
         Path(os.environ.get("XDG_CONFIG_HOME", Path("~/.config").expanduser()))
         / _posixify(app_name),
     )
+
+
+class StrEnum(str, Enum):
+    """
+    A string-based Enum copied from
+    https://www.cosmicpython.com/blog/2020-10-27-i-hate-enums.html
+    """
+
+    def __str__(self) -> str:
+        return str.__str__(self)

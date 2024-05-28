@@ -1,5 +1,4 @@
 from decimal import Decimal
-from enum import StrEnum
 from typing import Annotated
 from typing import Any
 
@@ -9,6 +8,8 @@ from pydantic import GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import CoreSchema
 from pydantic_core import core_schema
+
+from graphmix.core.util import StrEnum
 
 ureg = pint.UnitRegistry()
 ureg.setup_matplotlib()
