@@ -1,7 +1,6 @@
+from collections.abc import Iterator
 from typing import Any
 from typing import Generic
-from typing import Iterator
-from typing import Type
 
 from sqlmodel import Session
 from sqlmodel import select
@@ -11,10 +10,10 @@ from graphmix.core.repository import T
 
 
 class SqlModelRepository(Generic[T], AbstractRepository[T]):
-    model: Type[T]
+    model: type[T]
     session: Session
 
-    def __init__(self, model: Type[T], session: Session):
+    def __init__(self, model: type[T], session: Session):
         self.session = session
         self.model = model
 

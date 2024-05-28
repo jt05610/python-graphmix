@@ -1,7 +1,7 @@
 from abc import abstractmethod
+from collections.abc import Iterator
 from typing import Any
 from typing import Generic
-from typing import Iterator
 from typing import TypeVar
 
 T = TypeVar("T")

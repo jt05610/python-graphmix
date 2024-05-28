@@ -7,7 +7,11 @@ from setuptools import setup
 
 
 def read(*names, **kwargs):
-    with Path(__file__).parent.joinpath(*names).open(encoding=kwargs.get("encoding", "utf8")) as fh:
+    with (
+        Path(__file__)
+        .parent.joinpath(*names)
+        .open(encoding=kwargs.get("encoding", "utf8")) as fh
+    ):
         return fh.read()
 
 
@@ -17,7 +21,9 @@ setup(
     license="MIT",
     description="Intelligent experiment planning and optimization powered by graph algorithms.",
     long_description="{}\n{}".format(
-        re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub("", read("README.rst")),
+        re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub(
+            "", read("README.rst")
+        ),
         re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst")),
     ),
     author="Jonathan Ross Taylor",

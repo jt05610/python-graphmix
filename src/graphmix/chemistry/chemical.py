@@ -1,3 +1,4 @@
+import decimal
 from typing import Any
 from typing import Optional
 
@@ -7,6 +8,7 @@ from sqlmodel import Field
 from sqlmodel import SQLModel
 
 from graphmix.chemistry.units import Q_
+from graphmix.chemistry.units import MolarMass
 
 
 class Quantity(TypeDecorator):
@@ -33,15 +35,12 @@ class Quantity(TypeDecorator):
         return process
 
 
-class Entity(SQLModel):
+class Chemical(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-
-
-class Chemical(Entity, table=True):
     formula: str
     smiles: Optional[str] = None
-    molar_mass: Q_ | str = Field(sa_type=Quantity)
+    molar_mass: MolarMass | str = Field(sa_type=Quantity)
 
     def count(self, element: str) -> int:
         if self.smiles is None:
@@ -54,10 +53,8 @@ class Chemical(Entity, table=True):
             if self.molar_mass.units == "":
                 self.molar_mass = Q_(self.molar_mass.magnitude, "g/mol")
             return
-        if isinstance(self.molar_mass, float):
+        if isinstance(self.molar_mass, float | int | decimal.Decimal):
             self.molar_mass = Q_(self.molar_mass, "g/mol")
 
-
-class NucleicAcid(Entity, table=True):
-    molar_mass: Q_ = Field(sa_type=Quantity)
-    number_of_phosphates: Optional[int] = None
+    def __hash__(self):
+        return hash(self.name)

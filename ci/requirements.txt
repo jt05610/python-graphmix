@@ -4,7 +4,6 @@ setuptools>=18.0.1
 six>=1.14.0
 tox
 twine
-Pint~=0.23
 matplotlib~=3.9.0
 pydantic~=2.7.1
 sqlmodel~=0.0.18
@@ -12,3 +11,9 @@ sqlmodel~=0.0.18
 graphmix~=0.0.0
 SQLAlchemy~=2.0.30
 pydantic_core~=2.18.2
+
+networkx~=3.3
+requests~=2.32.2
+pytest~=8.2.1
+
+Pint~=0.23
