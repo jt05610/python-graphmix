@@ -1,6 +1,5 @@
 from typing import Callable
 from typing import Generic
-from typing import Type
 
 from sqlmodel import Session
 
@@ -14,7 +13,7 @@ SessionFactory = Callable[[], Session]
 class SqlModelUnitOfWork(Generic[T], AbstractUnitOfWork):
     session_factory: SessionFactory
     session: Session
-    model: Type[T]
+    model: type[T]
 
     def __init__(self, session_factory: SessionFactory):
         self.session_factory = session_factory
