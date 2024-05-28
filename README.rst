@@ -41,9 +41,9 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.org/project/graphmix
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/jt05610/python-graphmix/v0.0.0.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/jt05610/python-graphmix/v0.0.1.svg
     :alt: Commits since latest release
-    :target: https://github.com/jt05610/python-graphmix/compare/v0.0.0...main
+    :target: https://github.com/jt05610/python-graphmix/compare/v0.0.1...main
 
 
 

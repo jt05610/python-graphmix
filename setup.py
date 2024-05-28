@@ -17,7 +17,7 @@ def read(*names, **kwargs):
 
 setup(
     name="graphmix",
-    version="0.0.0",
+    version="0.0.1",
     license="MIT",
     description="Intelligent experiment planning and optimization powered by graph algorithms.",
     long_description="{}\n{}".format(
