@@ -1,7 +1,56 @@
 [build-system]
-requires = [
-    "setuptools>=30.3.0",
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "graphmix"
+version = "0.0.1"
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib~=3.9.0",
+    "pydantic~=2.7.1",
+    "sqlmodel~=0.0.18",
+    "networkx~=3.3",
+    "requests~=2.32.2",
+    "Pint~=0.23",
+    "requests-ratelimiter~=0.6.0"
 ]
+authors = [
+    { name = "Jonathan Taylor", email = "jonrtaylor12@gmail.com" }
+]
+
+maintainers = [
+    { name = "Jonathan Taylor", email = "jonrtaylor12@gmail.com" }
+]
+
+readme = "README.rst"
+
+license = { file = "LICENSE" }
+description = "Intelligent experiment planning and optimization powered by graph algorithms."
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Unix",
+    "Operating System :: POSIX",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Documentation = "https://python-graphmix.readthedocs.io/"
+Changelog = "https://python-graphmix.readthedocs.io/en/latest/changelog.html"
+Issues = "https://github.com/jt05610/python-graphmix/issues"
+Repository = "https://github.com/jt05610/python-graphmix.git"
+Homepage = "https://github.com/jt05610/python-graphmix"
 
 [tool.ruff]
 extend-exclude = ["static", "ci/templates"]
@@ -55,13 +104,4 @@ force-single-line = true
 line-length = 79
 target-version = ["py312"]
 
-[project]
-dependencies = [
-    "matplotlib~=3.9.0",
-    "pydantic~=2.7.1",
-    "sqlmodel~=0.0.18",
-    "networkx~=3.3",
-    "requests~=2.32.2",
-    "Pint~=0.23",
-    "requests-ratelimiter~=0.6.0"
-]
+[tool.hatch.version]
