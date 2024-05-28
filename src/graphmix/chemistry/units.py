@@ -28,7 +28,10 @@ def dimensionality_validator(
     else:
 
         def validator_func(value: ureg.Quantity) -> ureg.Quantity:
-            if value.dimensionality != dimensionality:
+            if (
+                value.units.dimensionality != dimensionality
+                and value.units != "percent"
+            ):
                 raise ValueError(
                     f"Expected a quantity with dimensionality {dimensionality}, but got {value.dimensionality}."
                 )
@@ -138,7 +141,7 @@ class Dimensionality(StrEnum):
     Percent = "dimensionless"
 
 
-class DimQuantity:
+class DimQuantity(ureg.Quantity):
 
     def __class_getitem__(
         cls, item: str | Dimensionality, default_unit: str | None = None
