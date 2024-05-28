@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.units import Q_
-from graphmix.chemistry.units import Dimensionality
 from graphmix.chemistry.units import MassConcentration
 from graphmix.chemistry.units import MolarConcentration
 from graphmix.chemistry.units import Percent
@@ -22,11 +21,6 @@ class Composition(BaseModel):
         self, node: str
     ) -> MassConcentration | MolarConcentration:
         return self.nodes[node].concentration
-
-
-DIMENSIONALITY_LABEL_LOOKUP = {
-    Dimensionality.Percent: "solvent",
-}
 
 
 class Solution(BaseModel):
