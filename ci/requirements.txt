@@ -8,7 +8,6 @@ matplotlib~=3.9.0
 pydantic~=2.7.1
 sqlmodel~=0.0.18
 
-graphmix~=0.0.0
 SQLAlchemy~=2.0.30
 pydantic_core~=2.18.2
 

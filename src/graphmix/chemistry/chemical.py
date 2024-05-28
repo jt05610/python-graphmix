@@ -1,6 +1,5 @@
 import decimal
 from typing import Any
-from typing import Optional
 
 from sqlalchemy import String
 from sqlalchemy import TypeDecorator
@@ -36,10 +35,10 @@ class Quantity(TypeDecorator):
 
 
 class Chemical(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     name: str
     formula: str
-    smiles: Optional[str] = None
+    smiles: str | None = None
     molar_mass: MolarMass | str = Field(sa_type=Quantity)
 
     def count(self, element: str) -> int:
