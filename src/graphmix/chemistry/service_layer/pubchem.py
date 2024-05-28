@@ -1,42 +1,38 @@
-import time
-
-import requests
+from requests_ratelimiter import LimiterSession
 
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.units import Q_
 
-chemical_properties = (
-    "MolecularWeight",
-    "CanonicalSMILES",
-    "MolecularFormula",
-)
-
 
 def property_string() -> str:
+    chemical_properties = (
+        "MolecularWeight",
+        "CanonicalSMILES",
+        "MolecularFormula",
+    )
     return ",".join(chemical_properties)
+
+
+PROP_STRING = property_string()
 
 
 def pubchem_uri(name: str) -> str:
     base = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
-    end = f"property/{property_string()}/JSON"
+    end = f"property/{PROP_STRING}/JSON"
     return f"{base}/compound/name/{name}/{end}"
 
 
 class PubChemService:
-    last_request_time: float = 0
-    second_delay: float
-    timeout: int = 5
+    session: LimiterSession
+    timeout: float = 5
 
-    def __init__(self, requests_per_second: int = 5, timeout: int = 5):
-        self.second_delay = 1 / requests_per_second
+    def __init__(self, requests_per_second: float = 5, timeout: float = 5):
+        self.session = LimiterSession(per_second=requests_per_second)
+        self.timeout = timeout
 
     def do_request(self, uri: str) -> dict:
-        elapsed_time = time.time() - self.last_request_time
-        if elapsed_time < self.second_delay:
-            time.sleep(self.second_delay - elapsed_time)
-        r = requests.get(uri, timeout=5)
+        r = self.session.get(uri, timeout=self.timeout)
         r.raise_for_status()
-        self.last_request_time = time.time()
         return r.json()
 
     def lookup(self, name: str) -> Chemical:
