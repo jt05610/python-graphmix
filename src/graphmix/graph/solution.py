@@ -8,7 +8,7 @@ from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.units import Q_
 from graphmix.chemistry.units import MassConcentration
 from graphmix.chemistry.units import Percent
-from graphmix.graph.graph import DiGraph
+from graphmix.graph.model import DiGraph
 
 
 class DimensionalityError(Exception):
