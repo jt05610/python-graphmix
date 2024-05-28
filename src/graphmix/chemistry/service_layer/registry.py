@@ -1,7 +1,7 @@
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.service_layer.pubchem import PubChemService
-from graphmix.chemistry.service_layer.unit_of_work import DEFAULT_CHEMICAL_UOW
 from graphmix.chemistry.service_layer.unit_of_work import ChemicalUnitOfWork
+from graphmix.chemistry.service_layer.unit_of_work import session_factory
 
 
 class ChemicalRegistry:
@@ -14,7 +14,9 @@ class ChemicalRegistry:
     uow: ChemicalUnitOfWork
     pubchem: PubChemService
 
-    def __init__(self, uow: ChemicalUnitOfWork = DEFAULT_CHEMICAL_UOW):
+    def __init__(self, uow: ChemicalUnitOfWork | None = None):
+        if uow is None:
+            uow = ChemicalUnitOfWork(session_factory=session_factory())
         self.uow = uow
         self.pubchem = PubChemService()
 

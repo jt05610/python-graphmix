@@ -35,11 +35,5 @@ def session_factory(db_name: str = config.DB_NAME) -> SessionFactory:
     return _factory
 
 
-DEFAULT_SESSION_FACTORY = session_factory()
-
-
 class ChemicalUnitOfWork(SqlModelUnitOfWork):
     model = Chemical
-
-
-DEFAULT_CHEMICAL_UOW = ChemicalUnitOfWork(DEFAULT_SESSION_FACTORY)
