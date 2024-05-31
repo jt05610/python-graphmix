@@ -62,7 +62,7 @@ def test_quantity_with_enforced_dimensionality():
     checks_to_run = (
         (Q_("100 uL"), Q_("100 uL")),
         (Q_(100, "uL"), Q_("100 uL")),
-        (100, Q_("100 uL"), ValidationError),
+        (100, Q_("100 mL")),
         ("100 uL", Q_("100 uL")),
         ("100 s", Q_("100 uL"), ValidationError),
         (Q_(100, "s"), Q_("100 uL"), ValidationError),

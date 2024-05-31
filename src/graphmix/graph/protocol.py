@@ -1,5 +1,9 @@
 from pydantic import BaseModel
+from pydantic import Field
 
+from graphmix.chemistry.chemical import Chemical
+from graphmix.chemistry.math import dilution
+from graphmix.chemistry.units import Concentration
 from graphmix.chemistry.units import Percent
 from graphmix.chemistry.units import Volume
 from graphmix.graph.model import DiGraph
@@ -23,9 +27,9 @@ class Node(Solution, Location):
 class Protocol(BaseModel):
     grids: dict[str, LocationSet] = {}
     nodes: dict[str, Node] = {}
-    G: DiGraph = DiGraph()
+    G: DiGraph = Field(default_factory=DiGraph)
 
-    def with_entity(
+    def with_node(
         self,
         entity: Solution,
         volume: Volume,
@@ -45,7 +49,13 @@ class Protocol(BaseModel):
 
     def add_node(self, node: Node) -> "Protocol":
         self.nodes[node.name] = node
-        self.G.add_node(node)
+        self.G.add_node(node.name)
+        return self
+
+    def add_edge(
+        self, source: Node, target: Node, weight: Percent
+    ) -> "Protocol":
+        self.G.add_edge(source.name, target.name, weight=weight)
         return self
 
     def get_node(self, n: Node | Solution | str) -> Node:
@@ -77,8 +87,54 @@ class Protocol(BaseModel):
             **position.model_dump(),
         ).with_components(node_compositions)
         self.add_node(new_node)
-        for node, percent in node_compositions.items():
-            self.G.add_edge(node, new_node, weight=percent)
+        for component, percent in components.items():
+            self.add_edge(
+                self.get_node(component),
+                new_node,
+                weight=percent,
+            )
+        return self
+
+    def with_dilution(
+        self,
+        species: Chemical | str,
+        source: Node | Solution | str,
+        diluent: Node | Solution | str,
+        final_volume: Volume,
+        final_concentration: Concentration,
+        into: LocationSet | str,
+    ) -> "Protocol":
+        v1 = dilution(
+            c1=self.get_node(source).composition.of(species),
+            v2=final_volume,
+            c2=final_concentration,
+        )
+        weight = Percent(v1 / final_volume, "%")
+        diluent_weight = Percent(100, "%") - weight
+        if isinstance(into, str):
+            into = self.grids[into]
+        position = next(into)
+        new_node = Node(
+            name=f"{source.name}_diluted_with_{diluent.name}",
+            final_volume=final_volume,
+            **position.model_dump(),
+        ).with_components(
+            {
+                self.get_node(source): weight,
+                self.get_node(diluent): diluent_weight,
+            }
+        )
+        self.add_node(new_node)
+        self.add_edge(
+            self.get_node(source),
+            new_node,
+            weight=weight,
+        )
+        self.add_edge(
+            self.get_node(diluent),
+            new_node,
+            weight=diluent_weight,
+        )
         return self
 
     @property

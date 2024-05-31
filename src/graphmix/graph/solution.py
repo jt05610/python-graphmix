@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 from pydantic import BaseModel
+from pydantic import Field
 
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.units import Q_
@@ -28,16 +29,34 @@ class Composition(BaseModel):
     solutes: dict[Chemical, MassConcentration] = {}
     solvents: dict[Chemical, Percent] = {}
 
+    @property
+    def all(self) -> dict:
+        return {**self.solutes, **self.solvents}
+
+    @property
+    def by_name(self) -> dict[str, MassConcentration | Percent]:
+        return {chem.name: conc for chem, conc in self.all.items()}
+
+    def of(self, chem: Chemical | str) -> MassConcentration | Percent:
+        if isinstance(chem, str):
+            if chem in self.by_name:
+                return self.by_name[chem]
+
+        return self.all[chem]
+
 
 class Solution(BaseModel):
     name: str
-    G: DiGraph = DiGraph()
+    G: DiGraph = Field(default_factory=DiGraph)
     components: dict[str, Chemical | Solution] = {}
+
+    def __getitem__(self, key: str) -> Q_:
+        return self.composition.of(key)
 
     def __hash__(self):
         return hash(self.name)
 
-    def add_entity(self, entity: Chemical):
+    def add_entity(self, entity: Chemical | Solution):
         self.components[entity.name] = entity
         self.G.add_node(entity.name)
         return self
@@ -56,20 +75,20 @@ class Solution(BaseModel):
         self.G.add_edge(component.name, self.name, concentration=concentration)
         return self
 
-    def with_components(self, components: dict[Chemical, Q_]):
+    def with_components(self, components: dict[Chemical | Solution, Q_]):
         for component, concentration in components.items():
             self.with_component(component, concentration)
         return self
 
-    def _component_data(self, node: str) -> tuple[Chemical, Q_]:
+    def _component_data(self, node: str) -> tuple[Chemical | Solution, Q_]:
         return (
             self.components[node],
             self.G.edges[node, self.name]["concentration"],
         )
 
-    def iter_nodes(self) -> Iterable[tuple[Chemical | str, Q_]]:
+    def iter_nodes(self) -> Iterable[tuple[Chemical | str | Solution, Q_]]:
         for node in self.components.keys():
-            if node == "root":
+            if node == self.name:
                 continue
             component, concentration = self._component_data(node)
             yield component, concentration

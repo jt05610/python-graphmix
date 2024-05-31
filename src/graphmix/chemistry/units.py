@@ -12,7 +12,6 @@ from pydantic_core import core_schema
 from graphmix.core.util import StrEnum
 
 ureg = pint.UnitRegistry()
-ureg.setup_matplotlib()
 ureg.default_format = "P~"
 
 
@@ -45,7 +44,10 @@ def dimensionality_validator(
     else:
 
         def convert_func(value: int | float | str | Decimal) -> ureg.Quantity:
-            return ureg.Quantity(value, default_unit)
+            q = ureg.Quantity(value)
+            if q.units == "":
+                q = Quantity(q.magnitude, default_unit)
+            return q
 
     class _QuantityPydanticAnnotation:
 
@@ -133,7 +135,7 @@ g = ureg.g
 
 class Dimensionality(StrEnum):
     Mass = "[mass]"
-    Substance = "[substance]"
+    Mole = "[substance]"
     MolarMass = "[mass] / [substance]"
     MolarConcentration = "[substance] / [length] ** 3"
     MassConcentration = "[mass] / [length] ** 3"
@@ -141,20 +143,38 @@ class Dimensionality(StrEnum):
     Percent = "dimensionless"
 
 
-class DimQuantity(ureg.Quantity):
-
+class DimQuantity(Quantity):
     def __class_getitem__(
-        cls, item: str | Dimensionality, default_unit: str | None = None
+        cls, item: str | Dimensionality | tuple[Dimensionality, str]
     ):
-        return Annotated[
-            ureg.Quantity, dimensionality_validator(item, default_unit)
-        ]
+        if isinstance(item, tuple):
+            validator = dimensionality_validator(item[0], item[1])
+        else:
+            validator = dimensionality_validator(item)
+
+        return Annotated[ureg.Quantity, validator]
 
 
-Mass = DimQuantity[Dimensionality.Mass]
-Substance = DimQuantity[Dimensionality.Substance]
-MolarMass = DimQuantity[Dimensionality.MolarMass]
-MolarConcentration = DimQuantity[Dimensionality.MolarConcentration]
-MassConcentration = DimQuantity[Dimensionality.MassConcentration]
-Volume = DimQuantity[Dimensionality.Volume]
-Percent = DimQuantity[Dimensionality.Percent]
+Mass = DimQuantity[Dimensionality.Mass, "g"]
+"""A Quantity that must have a mass unit."""
+
+Mole = DimQuantity[Dimensionality.Mole, "mol"]
+"""A Quantity that must have a mole unit."""
+
+MolarMass = DimQuantity[Dimensionality.MolarMass, "g/mol"]
+"""A Quantity that must have a molar mass unit."""
+
+MolarConcentration = DimQuantity[Dimensionality.MolarConcentration, "mol/mL"]
+"""A Quantity that must have a molar concentration unit."""
+
+MassConcentration = DimQuantity[Dimensionality.MassConcentration, "mg/mL"]
+"""A Quantity that must have a mass concentration unit."""
+
+Volume = DimQuantity[Dimensionality.Volume, "mL"]
+"""A Quantity that must have a volume unit."""
+
+Percent = DimQuantity[Dimensionality.Percent, "%"]
+"""A Quantity that must be dimensionless."""
+
+Concentration = MolarConcentration | MassConcentration
+"""A Quantity that must have a concentration unit, either molar or MassConcentration."""

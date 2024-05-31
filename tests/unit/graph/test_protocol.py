@@ -41,7 +41,7 @@ def test_with_entity():
 
     protocol = Protocol(
         grids={"0": WellPlate[96]},
-    ).with_entity(
+    ).with_node(
         entity=saline(),
         into="0",
         volume=Q_(100, "uL"),
@@ -55,15 +55,13 @@ def test_with_entity():
 def test_with_node_from():
     sal = saline()
     protocol = (
-        Protocol(
-            grids={"0": WellPlate[96]},
-        )
-        .with_entity(
+        Protocol(grids={"0": WellPlate[96]})
+        .with_node(
             entity=sal,
             into="0",
             volume=Q_(100, "uL"),
         )
-        .with_entity(
+        .with_node(
             entity=h20(),
             into="0",
             volume=Q_(100, "uL"),
@@ -81,3 +79,43 @@ def test_with_node_from():
     assert len(protocol.nodes) == 3
     assert len(protocol.edges) == 2
     assert len(protocol.G.nodes) == 3
+
+
+def test_dilution_with_mass_conc():
+    sal = saline()
+    water = h20()
+    protocol = (
+        Protocol(grids={"0": WellPlate[96]})
+        .with_node(
+            entity=sal,
+            into="0",
+            volume=Q_(100, "uL"),
+        )
+        .with_node(
+            entity=water,
+            into="0",
+            volume=Q_(100, "uL"),
+        )
+        .with_dilution(
+            species="NaCl",
+            source=sal,
+            diluent=water,
+            final_volume=Q_(100, "uL"),
+            final_concentration=Q_(0.5, "mg/mL"),
+            into="0",
+        )
+    )
+    for e in protocol.edges:
+        print(e)
+    assert len(protocol.nodes) == 3
+    assert len(protocol.edges) == 2
+    assert len(protocol.G.nodes) == 3
+    assert protocol.nodes["saline_diluted_with_water"]["NaCl"] == Q_(
+        0.5, "mg/mL"
+    )
+    assert protocol.edges[("saline", "saline_diluted_with_water")][
+        "weight"
+    ] == Q_(50, "%")
+    assert protocol.edges[("water", "saline_diluted_with_water")][
+        "weight"
+    ] == Q_(50, "%")
