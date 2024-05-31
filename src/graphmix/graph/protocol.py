@@ -1,3 +1,4 @@
+import networkx as nx
 from pydantic import BaseModel
 from pydantic import Field
 
@@ -27,7 +28,7 @@ class Node(Solution, Location):
 class Protocol(BaseModel):
     grids: dict[str, LocationSet] = {}
     nodes: dict[str, Node] = {}
-    G: DiGraph = Field(default_factory=DiGraph)
+    G: DiGraph = Field(default_factory=DiGraph, frozen=False)
 
     def with_node(
         self,
@@ -140,3 +141,6 @@ class Protocol(BaseModel):
     @property
     def edges(self):
         return self.G.edges
+
+    def write_latex(self, path: str) -> None:
+        nx.drawing.write_latex(self.G, path)

@@ -4,7 +4,6 @@ from collections.abc import Iterable
 from typing import Any
 
 from pydantic import BaseModel
-from pydantic import ConfigDict
 
 from graphmix.chemistry.units import Volume
 
@@ -14,8 +13,6 @@ class Location(BaseModel):
     A location within an experiment. Corresponds to a well plate coordinate or
     tube location in a tube rack.
     """
-
-    model_config = ConfigDict(frozen=True)
 
     grid: str | None = None
     row: str

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.service_layer.pubchem import PubChemService
 from graphmix.chemistry.service_layer.unit_of_work import ChemicalUnitOfWork
@@ -14,9 +16,13 @@ class ChemicalRegistry:
     uow: ChemicalUnitOfWork
     pubchem: PubChemService
 
-    def __init__(self, uow: ChemicalUnitOfWork | None = None):
+    def __init__(
+        self,
+        uow: ChemicalUnitOfWork | None = None,
+        path: str | None = None,
+    ):
         if uow is None:
-            uow = ChemicalUnitOfWork(session_factory=session_factory())
+            uow = ChemicalUnitOfWork(session_factory=session_factory(path))
         self.uow = uow
         self.pubchem = PubChemService()
 
@@ -26,7 +32,7 @@ class ChemicalRegistry:
         database, query PubChem for the chemical information.
         """
         with self.uow:
-            chemical = self.uow.repo.get_by("name", name)
+            chemical = self.uow.repo.get_by("name", name.lower())
             if chemical is not None:
                 return chemical
             chemical = self.pubchem.lookup(name)
@@ -44,8 +50,13 @@ class ChemicalRegistry:
         with self.uow:
             if self.uow.repo.get_by("name", chemical.name) is not None:
                 raise ValueError(f"Chemical {chemical.name} already exists")
+            chemical.name = chemical.name.lower()
             self.uow.repo.add(chemical)
             self.uow.commit()
 
-    def chem(self, name: str) -> Chemical:
+    def Chemical(self, name: str) -> Chemical:
         return self.get_chemical(name)
+
+    @property
+    def path(self) -> Path:
+        return self.uow.path

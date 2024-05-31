@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
+import networkx as nx
 from pydantic import BaseModel
 from pydantic import Field
 
@@ -47,7 +48,7 @@ class Composition(BaseModel):
 
 class Solution(BaseModel):
     name: str
-    G: DiGraph = Field(default_factory=DiGraph)
+    G: DiGraph = Field(default_factory=DiGraph, frozen=False)
     components: dict[str, Chemical | Solution] = {}
 
     def __getitem__(self, key: str) -> Q_:
@@ -73,6 +74,9 @@ class Solution(BaseModel):
                 )
         self.add_entity(component)
         self.G.add_edge(component.name, self.name, concentration=concentration)
+        if isinstance(component, Solution):
+            self.G = nx.compose(self.G, component.G)
+
         return self
 
     def with_components(self, components: dict[Chemical | Solution, Q_]):

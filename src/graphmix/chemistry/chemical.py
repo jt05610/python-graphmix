@@ -35,7 +35,7 @@ class Quantity(TypeDecorator):
 
 
 class Chemical(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True, repr=False)
     name: str
     formula: str
     smiles: str | None = None

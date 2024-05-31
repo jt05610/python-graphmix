@@ -81,10 +81,10 @@ def test_with_node_from():
     assert len(protocol.G.nodes) == 3
 
 
-def test_dilution_with_mass_conc():
+def dilution_protocol() -> Protocol:
     sal = saline()
     water = h20()
-    protocol = (
+    return (
         Protocol(grids={"0": WellPlate[96]})
         .with_node(
             entity=sal,
@@ -105,6 +105,10 @@ def test_dilution_with_mass_conc():
             into="0",
         )
     )
+
+
+def test_dilution_with_mass_conc():
+    protocol = dilution_protocol()
     for e in protocol.edges:
         print(e)
     assert len(protocol.nodes) == 3
@@ -119,3 +123,29 @@ def test_dilution_with_mass_conc():
     assert protocol.edges[("water", "saline_diluted_with_water")][
         "weight"
     ] == Q_(50, "%")
+
+
+def test_write_latex(tmp_path):
+    latex_path = tmp_path / "protocol.tex"
+    proto = dilution_protocol()
+    proto.write_latex(latex_path)
+    expected = """\\documentclass{report}
+\\usepackage{tikz}
+\\usepackage{subcaption}
+
+\\begin{document}
+\\begin{figure}
+  \\begin{tikzpicture}
+      \\draw
+        (0.0:2) node (saline){saline}
+        (120.0:2) node (water){water}
+        (240.0:2) node (saline_diluted_with_water){saline_diluted_with_water};
+      \\begin{scope}[->]
+        \\draw (saline) to (saline_diluted_with_water);
+        \\draw (water) to (saline_diluted_with_water);
+      \\end{scope}
+    \\end{tikzpicture}
+\\end{figure}
+\\end{document}"""
+    with latex_path.open() as f:
+        assert f.read() == expected

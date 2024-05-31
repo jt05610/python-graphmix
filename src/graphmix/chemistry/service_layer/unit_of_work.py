@@ -16,13 +16,18 @@ def db_path(db_name: str) -> Path:
     return Path(db_dir) / db_name
 
 
-def session_factory(db_name: str = config.DB_NAME) -> SessionFactory:
-    path = db_path(db_name)
+def session_factory(db_name: str | Path | None = None) -> SessionFactory:
+    if db_name is None:
+        path = db_path(config.DB_NAME)
+    else:
+        path = Path(db_name)
+
     sqlite_path = f"sqlite:///{path}"
     needs_metadata = False
     if not Path.exists(path):
         needs_metadata = True
-        path.mkdir(parents=True)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
 
     engine = create_engine(sqlite_path, echo=False)
     # if the file does not exist, create the metadata
@@ -32,7 +37,7 @@ def session_factory(db_name: str = config.DB_NAME) -> SessionFactory:
     def _factory():
         return Session(engine)
 
-    return _factory
+    return SessionFactory(f=_factory, path=path)
 
 
 class ChemicalUnitOfWork(SqlModelUnitOfWork):
