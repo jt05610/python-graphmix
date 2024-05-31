@@ -15,3 +15,4 @@ requests~=2.32.2
 pytest~=8.2.1
 
 Pint~=0.23
+scipy~=1.13.1

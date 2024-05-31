@@ -149,3 +149,10 @@ def test_write_latex(tmp_path):
 \\end{document}"""
     with latex_path.open() as f:
         assert f.read() == expected
+
+
+def test_protocol_inputs_outputs():
+    protocol = dilution_protocol()
+
+    assert len(protocol.inputs) == 2
+    assert len(protocol.outputs) == 1

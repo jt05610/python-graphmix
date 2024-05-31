@@ -13,7 +13,8 @@ dependencies = [
     "networkx~=3.3",
     "requests~=2.32.2",
     "Pint~=0.23",
-    "requests-ratelimiter~=0.6.0"
+    "requests-ratelimiter~=0.6.0",
+    "scipy~=1.13.1"
 ]
 authors = [
     { name = "Jonathan Taylor", email = "jonrtaylor12@gmail.com" }

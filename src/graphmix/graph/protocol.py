@@ -144,3 +144,15 @@ class Protocol(BaseModel):
 
     def write_latex(self, path: str) -> None:
         nx.drawing.write_latex(self.G, path)
+
+    @property
+    def inputs(self) -> tuple[Node, ...]:
+        return tuple(
+            self.get_node(n) for n, deg in self.G.in_degree if not deg
+        )
+
+    @property
+    def outputs(self) -> tuple[Node, ...]:
+        return tuple(
+            self.get_node(n) for n, deg in self.G.out_degree if not deg
+        )

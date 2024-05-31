@@ -1,11 +1,9 @@
 import json
 
-import matplotlib.pyplot as plt
 import pytest
 
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.units import Q_
-from graphmix.graph.drawing import plot_graph
 from graphmix.graph.solution import Composition
 from graphmix.graph.solution import DimensionalityError
 from graphmix.graph.solution import Solution
@@ -54,9 +52,6 @@ def test_solution_prepared_from_solution():
     assert new_solution.composition == expected_composition
     print(new_solution.G.nodes)
     assert len(new_solution.G.nodes) == 4
-    fig, ax = plt.subplots()
-    plot_graph(new_solution.G, ax=ax, edge_attr="concentration")
-    fig.savefig("diluted_saline.png")
 
     another_dilution = (
         Solution(name="twice_diluted_saline")
