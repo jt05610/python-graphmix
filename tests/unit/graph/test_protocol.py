@@ -49,7 +49,6 @@ def test_with_entity():
 
     assert protocol.nodes["saline"].final_volume == Q_(100, "uL")
     assert protocol.nodes["saline"].location == WellPlate[96][0]
-    print(protocol.nodes["saline"].solution)
 
 
 def test_with_node_from():
@@ -97,7 +96,7 @@ def dilution_protocol() -> Protocol:
             volume=Q_(100, "uL"),
         )
         .with_dilution(
-            species="NaCl",
+            species=sal.components["NaCl"],
             source=sal,
             diluent=water,
             final_volume=Q_(100, "uL"),
@@ -109,8 +108,6 @@ def dilution_protocol() -> Protocol:
 
 def test_dilution_with_mass_conc():
     protocol = dilution_protocol()
-    for e in protocol.edges:
-        print(e)
     assert len(protocol.nodes) == 3
     assert len(protocol.edges) == 2
     assert len(protocol.G.nodes) == 3

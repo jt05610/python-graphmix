@@ -11,7 +11,6 @@ def test_chemical_registry_adds_chemical_when_not_known(
     reg = ChemicalRegistry(uow)
 
     water = reg.Chemical("water")
-    print(water)
     assert water.name == "water"
     assert water.formula == "H2O"
     assert water.molar_mass == Q_("18.015 g/mol")

@@ -13,21 +13,26 @@ from graphmix.location import Location
 from graphmix.location import LocationSet
 
 
-class Node(Solution, Location):
+class Node(BaseModel):
+    solution: Solution
+    location: Location
     final_volume: Volume
 
-    @property
-    def solution(self) -> Solution:
-        return Solution(**self.model_dump())
+    def __hash__(self):
+        return hash(self.name)
+
+    def __getitem__(self, item: str | Chemical):
+        return self.solution.composition.of(item)
 
     @property
-    def location(self) -> Location:
-        return Location(**self.model_dump())
+    def name(self) -> str:
+        return self.solution.name
 
 
 class Protocol(BaseModel):
     grids: dict[str, LocationSet] = {}
     nodes: dict[str, Node] = {}
+    chemicals: dict[str, Chemical] = {}
     G: DiGraph = Field(default_factory=DiGraph, frozen=False)
 
     def with_node(
@@ -42,10 +47,19 @@ class Protocol(BaseModel):
             into = next(into)
         new_node = Node(
             final_volume=volume,
-            **into.model_dump(),
-            **entity.model_dump(),
+            solution=entity,
+            location=into,
         )
         self.add_node(new_node)
+        self.chemicals.update(dict(entity.chemicals))
+        return self
+
+    def with_edge(
+        self, source: str | Solution, target: str | Solution, weight: Percent
+    ) -> "Protocol":
+        source = self.get_node(source)
+        target = self.get_node(target)
+        self.add_edge(source, target, weight)
         return self
 
     def add_node(self, node: Node) -> "Protocol":
@@ -82,11 +96,12 @@ class Protocol(BaseModel):
             self.get_node(component): percent
             for component, percent in components.items()
         }
+        solution = Solution(name=name).with_components(node_compositions)
         new_node = Node(
-            name=name,
+            solution=solution,
             final_volume=final_volume,
-            **position.model_dump(),
-        ).with_components(node_compositions)
+            location=position,
+        )
         self.add_node(new_node)
         for component, percent in components.items():
             self.add_edge(
@@ -105,8 +120,10 @@ class Protocol(BaseModel):
         final_concentration: Concentration,
         into: LocationSet | str,
     ) -> "Protocol":
+        if isinstance(species, str):
+            species = self.chemicals[species]
         v1 = dilution(
-            c1=self.get_node(source).composition.of(species),
+            c1=self.get_node(source).solution.composition.of(species),
             v2=final_volume,
             c2=final_concentration,
         )
@@ -115,16 +132,15 @@ class Protocol(BaseModel):
         if isinstance(into, str):
             into = self.grids[into]
         position = next(into)
+        solution = Solution(
+            name=f"{source.name}_diluted_with_{diluent.name}"
+        ).with_component(species, final_concentration)
         new_node = Node(
-            name=f"{source.name}_diluted_with_{diluent.name}",
             final_volume=final_volume,
-            **position.model_dump(),
-        ).with_components(
-            {
-                self.get_node(source): weight,
-                self.get_node(diluent): diluent_weight,
-            }
+            location=position,
+            solution=solution,
         )
+
         self.add_node(new_node)
         self.add_edge(
             self.get_node(source),

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
+from collections.abc import Callable
+from collections.abc import Generator
 
 import networkx as nx
 from pydantic import BaseModel
@@ -11,6 +12,15 @@ from graphmix.chemistry.units import Q_
 from graphmix.chemistry.units import MassConcentration
 from graphmix.chemistry.units import Percent
 from graphmix.graph.model import DiGraph
+
+
+def chain_functions(*funcs: Callable[[Q_], Q_]) -> Callable[[Q_], Q_]:
+    def chain(x: Q_) -> Q_:
+        for f in funcs:
+            x = f(x)
+        return x
+
+    return chain
 
 
 class DimensionalityError(Exception):
@@ -36,14 +46,33 @@ class Composition(BaseModel):
 
     @property
     def by_name(self) -> dict[str, MassConcentration | Percent]:
-        return {chem.name: conc for chem, conc in self.all.items()}
+        return {
+            chem.name if isinstance(chem, Chemical) else chem: conc
+            for chem, conc in self.all.items()
+        }
 
-    def of(self, chem: Chemical | str) -> MassConcentration | Percent:
+    def of(
+        self,
+        chem: Chemical | str,
+        to_unit: str | None = None,
+        compact: bool = False,
+    ) -> MassConcentration | Percent:
         if isinstance(chem, str):
-            if chem in self.by_name:
-                return self.by_name[chem]
+            idx = self.by_name
+        else:
+            idx = self.all
+        ret = idx.get(chem, Q_(0, "mg/mL" if to_unit is None else to_unit))
+        if to_unit is not None:
+            ret = ret.to(to_unit)
+        if compact:
+            ret = ret.to_compact()
+        return ret
 
-        return self.all[chem]
+    def __eq__(self, other: Composition) -> bool:
+        for k, v in self.all.items():
+            if v != other.of(k):
+                return False
+        return True
 
 
 class Solution(BaseModel):
@@ -56,6 +85,12 @@ class Solution(BaseModel):
 
     def __hash__(self):
         return hash(self.name)
+
+    @property
+    def chemicals(self) -> Generator[tuple[str, Chemical], None, None]:
+        for k, v in self.components.items():
+            if isinstance(v, Chemical):
+                yield k, v
 
     def add_entity(self, entity: Chemical | Solution):
         self.components[entity.name] = entity
@@ -76,6 +111,7 @@ class Solution(BaseModel):
         self.G.add_edge(component.name, self.name, concentration=concentration)
         if isinstance(component, Solution):
             self.G = nx.compose(self.G, component.G)
+            self.components.update(dict(component.chemicals))
 
         return self
 
@@ -90,36 +126,39 @@ class Solution(BaseModel):
             self.G.edges[node, self.name]["concentration"],
         )
 
-    def iter_nodes(self) -> Iterable[tuple[Chemical | str | Solution, Q_]]:
-        for node in self.components.keys():
-            if node == self.name:
-                continue
-            component, concentration = self._component_data(node)
-            yield component, concentration
+    def in_edges(
+        self, node: str
+    ) -> Generator[tuple[str, str, Q_ | float], None, None]:
+        for source, _, conc in self.G.in_edges(node, data="concentration"):
+            match conc.units:
+                case "percent":
+                    yield source, node, conc.to("%").magnitude / 100
+                case _:
+                    yield source, node, conc
 
     @property
     def composition(self) -> Composition:
+        makeup = {}
+
+        def traverse(node: str, factor: float = 1.0):
+            traversed = False
+            for source, _, conc in self.in_edges(node):
+                traversed = True
+                traverse(source, conc * factor)
+            if not traversed:
+                if node not in makeup:
+                    makeup[node] = factor
+                else:
+                    makeup[node] += factor
+
+        traverse(self.name)
+
         composition = Composition()
-        for component, concentration in self.iter_nodes():
-            if isinstance(component, Solution):
-                sub_composition = component.composition
-                for solvent, conc in sub_composition.solvents.items():
-                    if solvent in composition.solvents:
-                        composition.solvents[solvent] += conc * concentration
-                        continue
-                    composition.solvents[solvent] = conc * concentration
-                for solute, conc in sub_composition.solutes.items():
-                    solute_concentration = conc * concentration
-                    if solute in composition.solutes:
-                        composition.solutes[solute] += solute_concentration
-                        continue
-                    composition.solutes[solute] = solute_concentration
+        chem_dict = dict(self.chemicals)
+        for k, v in makeup.items():
+            chem = chem_dict[k]
+            if isinstance(v, float):
+                composition.solvents[chem] = Percent(100 * v, "%")
                 continue
-            if concentration.units.dimensionality == "[mass] / [length] ** 3":
-                composition.solutes[component] = concentration
-            if concentration.units == "percent":
-                if component in composition.solvents:
-                    composition.solvents[component] += concentration
-                    continue
-                composition.solvents[component] = concentration
+            composition.solutes[chem] = v
         return composition
