@@ -13,7 +13,7 @@ def plot_graph(
     font_size: int = 8,
     node_size: int = 500,
     edge_colors: str = "#042f2e",
-    edge_attr: str = "weight",
+    edge_attr: str = "concentration",
     line_width: float = 1.1,
     alpha: float = 0.8,
     ax: plt.Axes = None,

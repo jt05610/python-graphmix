@@ -162,3 +162,13 @@ class Solution(BaseModel):
                 continue
             composition.solutes[chem] = v
         return composition
+
+    def dilute_with(self, solvent: Chemical, ratio: float) -> Solution:
+        if not 0 < ratio < 1:
+            raise ValueError("Dilution ratio must be between 0 and 1")
+
+        return (
+            Solution(name=f"{self.name} d/ {solvent.name}")
+            .with_component(self, Q_(ratio * 100, "%"))
+            .with_component(solvent, Q_((1 - ratio) * 100, "%"))
+        )

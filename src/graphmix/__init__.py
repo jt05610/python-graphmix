@@ -1,5 +1,8 @@
 __version__ = "0.0.1"
 
-__all__ = ["ChemicalRegistry"]
+__all__ = ["ChemicalRegistry", "Solution", "Q_", "plot_graph"]
 
 from graphmix.chemistry.service_layer.registry import ChemicalRegistry
+from graphmix.chemistry.units import Q_
+from graphmix.graph.drawing import plot_graph
+from graphmix.graph.solution import Solution

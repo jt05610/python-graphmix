@@ -1,9 +1,12 @@
+import logging
 from pathlib import Path
 
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.service_layer.pubchem import PubChemService
 from graphmix.chemistry.service_layer.unit_of_work import ChemicalUnitOfWork
 from graphmix.chemistry.service_layer.unit_of_work import session_factory
+
+logger = logging.getLogger(__name__)
 
 
 class ChemicalRegistry:
@@ -35,8 +38,12 @@ class ChemicalRegistry:
             chemical = self.uow.repo.get_by("name", name.lower())
             if chemical is not None:
                 return chemical
+            logger.info(
+                f"Chemical {name} not found in local database, querying PubChem"
+            )
             chemical = self.pubchem.lookup(name)
             if chemical is None:
+                logger.error(f"Chemical {name} not found in PubChem")
                 raise ValueError(f"Chemical {name} not found")
             self.uow.repo.add(chemical)
             self.uow.session.expunge(chemical)
