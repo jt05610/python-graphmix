@@ -64,3 +64,15 @@ def test_cant_prepare_from_solution_with_mass_conc(saline, h2o):
             .with_component(saline, Q_(50, "mg/mL"))
             .with_component(h2o, Q_(50, "%"))
         )
+
+
+def test_solution_prepared_with_molar_conc(nacl, h2o):
+    soln = (
+        Solution(name="molar_saline")
+        .with_component(nacl, Q_(1, "M"))
+        .with_component(h2o, Q_(100, "%"))
+    )
+
+    expected_mass = (nacl.molar_mass * Q_(1, "M")).to("mg/mL")
+    assert soln.composition.of(nacl) == Q_(1, "M")
+    assert soln.composition.of(nacl, to_unit="mg/mL") == expected_mass

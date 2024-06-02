@@ -63,6 +63,13 @@ class Composition(BaseModel):
             idx = self.all
         ret = idx.get(chem, Q_(0, "mg/mL" if to_unit is None else to_unit))
         if to_unit is not None:
+            test_q = Q_(1, to_unit)
+            if test_q.dimensionality != ret.dimensionality:
+                if (
+                    test_q.dimensionality == "[mass] / [length] ** 3"
+                    and ret.dimensionality == "[substance] / [length] ** 3"
+                ):
+                    ret = ret * chem.molar_mass
             ret = ret.to(to_unit)
         if compact:
             ret = ret.to_compact()
