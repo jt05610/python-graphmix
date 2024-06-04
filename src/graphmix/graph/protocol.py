@@ -8,25 +8,10 @@ from graphmix.chemistry.units import Concentration
 from graphmix.chemistry.units import Percent
 from graphmix.chemistry.units import Volume
 from graphmix.graph.model import DiGraph
+from graphmix.graph.node import Node
 from graphmix.graph.solution import Solution
 from graphmix.location import Location
 from graphmix.location import LocationSet
-
-
-class Node(BaseModel):
-    solution: Solution
-    location: Location
-    final_volume: Volume
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __getitem__(self, item: str | Chemical):
-        return self.solution.composition.of(item)
-
-    @property
-    def name(self) -> str:
-        return self.solution.name
 
 
 class Protocol(BaseModel):

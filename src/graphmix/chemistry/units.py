@@ -141,6 +141,7 @@ class Dimensionality(StrEnum):
     MassConcentration = "[mass] / [length] ** 3"
     Volume = "[length] ** 3"
     Percent = "dimensionless"
+    FlowRate = "[length] ** 3 / [time]"
 
 
 class DimQuantity(Quantity):
@@ -178,3 +179,6 @@ Percent = DimQuantity[Dimensionality.Percent, "%"]
 
 Concentration = MolarConcentration | MassConcentration
 """A Quantity that must have a concentration unit, either molar or MassConcentration."""
+
+FlowRate = DimQuantity[Dimensionality.FlowRate, "mL/min"]
+"""A Quantity that must have a flow rate unit."""
