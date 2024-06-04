@@ -64,9 +64,19 @@ You can also install the in-development version with::
 
     pip install https://github.com/jt05610/python-graphmix/archive/main.zip
 
+Getting started
+===============
+
+See the
+
 
 Documentation
 =============
+
+See the
+[example notebook](https://github.com/jt05610/python-graphmix/blob/main/examples/graphmix_examples.ipynb),
+which provides several
+use-cases of this library.
 
 
 https://python-graphmix.readthedocs.io/
