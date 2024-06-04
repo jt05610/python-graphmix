@@ -107,5 +107,6 @@ force-single-line = true
 line-length = 79
 target-version = ["py312"]
 
+# temporary hack
 [tool.hatch.metadata]
 allow-direct-references = true
