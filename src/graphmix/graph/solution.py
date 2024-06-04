@@ -10,6 +10,7 @@ from pydantic import Field
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.units import Q_
 from graphmix.chemistry.units import MassConcentration
+from graphmix.chemistry.units import MolarConcentration
 from graphmix.chemistry.units import Percent
 from graphmix.graph.model import DiGraph
 
@@ -56,7 +57,7 @@ class Composition(BaseModel):
         chem: Chemical | str,
         to_unit: str | None = None,
         compact: bool = False,
-    ) -> MassConcentration | Percent:
+    ) -> MassConcentration | MolarConcentration | Percent:
         if isinstance(chem, str):
             idx = self.by_name
         else:

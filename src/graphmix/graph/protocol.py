@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from pydantic import Field
 
 from graphmix.chemistry.chemical import Chemical
-from graphmix.chemistry.math import dilution
+from graphmix.chemistry.dilution import dilution
 from graphmix.chemistry.units import Concentration
 from graphmix.chemistry.units import Percent
 from graphmix.chemistry.units import Volume
