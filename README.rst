@@ -74,7 +74,7 @@ Documentation
 =============
 
 See the
-[example notebook](https://github.com/jt05610/pyhton-graphmix/blob/main/examples/graphmix_examples.ipynb),
+[example notebook](https://github.com/jt05610/python-graphmix/blob/main/examples/graphmix_examples.ipynb),
 which provides several
 use-cases of this library.
 
