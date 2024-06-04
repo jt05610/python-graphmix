@@ -19,4 +19,8 @@ scipy~=1.13.1
 
 graphmix~=0.0.0
 
-PyLabRobot~=0.1.6
+# using my fix of PyLabRobot until it's merged
+PyLabRobot @ git+https://github.com/jt05610/pylabrobot@fix-asyncio-threading
+# PyLabRobot~=0.1.6
+libusb-package~=1.0.26.1
+pytz

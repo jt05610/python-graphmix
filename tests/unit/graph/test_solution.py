@@ -1,10 +1,8 @@
 import json
 
 import pytest
-from matplotlib import pyplot as plt
 
 from graphmix.chemistry.units import Q_
-from graphmix.graph.drawing import plot_graph
 from graphmix.graph.solution import Composition
 from graphmix.graph.solution import DimensionalityError
 from graphmix.graph.solution import Solution
@@ -39,8 +37,6 @@ def test_solution_prepared_from_solution(saline, h2o, nacl):
         solutes={nacl: Q_(0.5, "mg/mL")}, solvents={h2o: Q_(100, "%")}
     )
 
-    plot_graph(new_solution.G, edge_attr="concentration")
-    plt.savefig("test.svg")
     assert new_solution.composition == expected_composition
     assert len(new_solution.G.nodes) == 4
 
