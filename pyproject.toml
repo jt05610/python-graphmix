@@ -12,7 +12,7 @@ dependencies = [
     "sqlmodel~=0.0.18",
     "networkx~=3.3",
     "requests~=2.32.2",
-    "Pint~=0.23",
+    "Pint~=0.24",
     "requests-ratelimiter~=0.6.0",
     "scipy~=1.13.1",
     # "PyLabRobot @ git+https://github.com/jt05610/pylabrobot@add-config-file",

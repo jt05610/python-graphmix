@@ -14,7 +14,7 @@ networkx~=3.3
 requests~=2.32.2
 pytest~=8.2.1
 
-Pint~=0.23
+Pint~=0.24
 scipy~=1.13.1
 
 PyLabRobot @ git+https://github.com/PyLabRobot/pylabrobot

@@ -12,7 +12,7 @@ from pydantic_core import core_schema
 from graphmix.core.util import StrEnum
 
 ureg = pint.UnitRegistry()
-ureg.default_format = "P~"
+ureg.formatter.default_format = "P~"
 
 
 def dimensionality_validator(
