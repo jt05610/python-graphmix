@@ -4,6 +4,7 @@ from pydantic import Field
 
 from graphmix.chemistry.chemical import Chemical
 from graphmix.chemistry.dilution import dilution
+from graphmix.chemistry.units import Q_
 from graphmix.chemistry.units import Concentration
 from graphmix.chemistry.units import Percent
 from graphmix.chemistry.units import Volume
@@ -18,7 +19,9 @@ class Protocol(BaseModel):
     grids: dict[str, LocationSet] = {}
     nodes: dict[str, Node] = {}
     chemicals: dict[str, Chemical] = {}
-    G: DiGraph = Field(default_factory=DiGraph, frozen=False)
+    G: DiGraph = Field(default_factory=DiGraph)
+    initial_volumes: dict[str, Volume] = {}
+    outgoing_volumes: dict[str, Volume] = {}
 
     def with_node(
         self,
@@ -37,6 +40,8 @@ class Protocol(BaseModel):
         )
         self.add_node(new_node)
         self.chemicals.update(dict(entity.chemicals))
+        self.initial_volumes[entity.name] = Q_(0, "uL")
+        self.outgoing_volumes[entity.name] = Q_(0, "uL")
         return self
 
     def with_edge(
@@ -104,22 +109,32 @@ class Protocol(BaseModel):
         final_volume: Volume,
         final_concentration: Concentration,
         into: LocationSet | str,
+        name: str | None = None,
     ) -> "Protocol":
         if isinstance(species, str):
             species = self.chemicals[species]
+        source_node = self.get_node(source)
+        c1 = source_node.solution.composition.of(species)
         v1 = dilution(
-            c1=self.get_node(source).solution.composition.of(species),
+            c1=c1,
             v2=final_volume,
             c2=final_concentration,
         )
+        dilution_factor = (
+            (final_concentration / c1).to("dimensionless").magnitude
+        )
+        dil = self.get_node(diluent).solution
+        solution = source_node.solution.dilute_with(
+            name=name,
+            solvent=dil,
+            ratio=dilution_factor,
+        )
+
         weight = Percent(v1 / final_volume, "%")
         diluent_weight = Percent(100, "%") - weight
         if isinstance(into, str):
             into = self.grids[into]
         position = next(into)
-        solution = Solution(
-            name=f"{source.name}_diluted_with_{diluent.name}"
-        ).with_component(species, final_concentration)
         new_node = Node(
             final_volume=final_volume,
             location=position,

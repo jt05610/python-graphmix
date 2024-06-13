@@ -15,6 +15,7 @@ dependencies = [
     "Pint~=0.23",
     "requests-ratelimiter~=0.6.0",
     "scipy~=1.13.1",
+    # "PyLabRobot @ git+https://github.com/jt05610/pylabrobot@add-config-file",
     "PyLabRobot @ git+https://github.com/PyLabRobot/pylabrobot",
     "libusb-package~=1.0.26.1"
 ]

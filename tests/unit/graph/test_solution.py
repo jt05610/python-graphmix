@@ -72,3 +72,9 @@ def test_solution_prepared_with_molar_conc(nacl, h2o):
     expected_mass = (nacl.molar_mass * Q_(1, "M")).to("mg/mL")
     assert soln.composition.of(nacl) == Q_(1, "M")
     assert soln.composition.of(nacl, to_unit="mg/mL") == expected_mass
+
+
+def test_dilute_with(saline, water):
+    new_soln = saline.dilute_with(water, 0.5)
+    assert new_soln.composition.of("H2O") == Q_(100, "%")
+    assert new_soln.composition.of("NaCl") == Q_(0.5, "mg/mL")
