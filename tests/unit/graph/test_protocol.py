@@ -91,3 +91,10 @@ def test_protocol_inputs_outputs(dilution_protocol):
 
     assert len(protocol.inputs) == 2
     assert len(protocol.outputs) == 1
+
+
+def test_protocol_initial_volume(dilution_protocol):
+    protocol = dilution_protocol.solve()
+    assert protocol.initial_volumes["saline"] == Q_(150, "uL")
+    assert protocol.initial_volumes["water"] == Q_(150, "uL")
+    assert protocol.initial_volumes["saline_diluted_with_water"] == Q_(0, "uL")

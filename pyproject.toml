@@ -7,7 +7,7 @@ name = "graphmix"
 version = "0.0.2"
 requires-python = ">=3.10"
 dependencies = [
-    "matplotlib~=3.9.0",
+    "matplotlib~=3.8.4",
     "pydantic~=2.7.1",
     "sqlmodel~=0.0.18",
     "networkx~=3.3",

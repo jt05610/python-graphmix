@@ -1,3 +1,5 @@
+from collections.abc import Generator
+
 import networkx as nx
 from pydantic import BaseModel
 from pydantic import Field
@@ -8,6 +10,8 @@ from graphmix.chemistry.units import Q_
 from graphmix.chemistry.units import Concentration
 from graphmix.chemistry.units import Percent
 from graphmix.chemistry.units import Volume
+from graphmix.graph.analysis import edge_volume
+from graphmix.graph.analysis import reverse_topological_sort
 from graphmix.graph.model import DiGraph
 from graphmix.graph.node import Node
 from graphmix.graph.solution import Solution
@@ -39,10 +43,30 @@ class Protocol(BaseModel):
             location=into,
         )
         self.add_node(new_node)
-        self.chemicals.update(dict(entity.chemicals))
-        self.initial_volumes[entity.name] = Q_(0, "uL")
-        self.outgoing_volumes[entity.name] = Q_(0, "uL")
         return self
+
+    @property
+    def reverse_topo_nodes(self) -> Generator[Node, None, None]:
+        for n in reverse_topological_sort(self.G):
+            yield self.nodes[n]
+
+    def _update_volumes(self):
+        for node in self.reverse_topo_nodes:
+            if len(self.G.in_edges(node.name)) == 0:
+                self.initial_volumes[node.name] = (
+                    node.final_volume + self.outgoing_volumes[node.name]
+                )
+                continue
+            for u, v in self.G.in_edges(node.name):
+                vol = edge_volume(
+                    self.G,
+                    u,
+                    v,
+                    self.nodes[v].final_volume,
+                    self.outgoing_volumes[v],
+                )
+                self.outgoing_volumes[u] += vol
+                self.G.edges[u, v]["volume"] = vol
 
     def with_edge(
         self, source: str | Solution, target: str | Solution, weight: Percent
@@ -55,12 +79,16 @@ class Protocol(BaseModel):
     def add_node(self, node: Node) -> "Protocol":
         self.nodes[node.name] = node
         self.G.add_node(node.name)
+        self.chemicals.update(dict(node.solution.chemicals))
+        self.initial_volumes[node.name] = Q_(0, "uL")
+        self.outgoing_volumes[node.name] = Q_(0, "uL")
         return self
 
     def add_edge(
         self, source: Node, target: Node, weight: Percent
     ) -> "Protocol":
-        self.G.add_edge(source.name, target.name, weight=weight)
+        as_prop = weight.to("dimensionless").magnitude
+        self.G.add_edge(source.name, target.name, weight=as_prop)
         return self
 
     def get_node(self, n: Node | Solution | str) -> Node:
@@ -172,3 +200,7 @@ class Protocol(BaseModel):
         return tuple(
             self.get_node(n) for n, deg in self.G.out_degree if not deg
         )
+
+    def solve(self) -> "Protocol":
+        self._update_volumes()
+        return self

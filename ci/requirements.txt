@@ -3,7 +3,7 @@ pip>=19.1.1
 six>=1.14.0
 tox
 twine
-matplotlib~=3.9.0
+matplotlib~=3.8.4
 pydantic~=2.7.1
 sqlmodel~=0.0.18
 
